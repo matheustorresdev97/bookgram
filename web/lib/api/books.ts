@@ -144,3 +144,15 @@ export async function getBooks(): Promise<Books> {
 export async function getBookById(id: number): Promise<Book | undefined> {
   return delay(books.find((book) => book.id === id));
 }
+
+export async function toggleFavorite(id: number): Promise<Book | undefined> {
+  const book = books.find((b) => b.id === id);
+
+  if (!book) {
+    return delay(undefined);
+  }
+
+  book.isFavorite = !book.isFavorite;
+
+  return delay(book);
+}
