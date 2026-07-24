@@ -66,3 +66,43 @@ export async function register(
 
   return delay({ success: true, user: { username: name } });
 }
+
+export interface RequestPasswordResetResult {
+  success: boolean;
+}
+
+/**
+ * Nunca revela se o e-mail existe na base, para evitar enumeração de contas.
+ */
+export async function requestPasswordReset(
+  email: string,
+): Promise<RequestPasswordResetResult> {
+  void email;
+  return delay({ success: true });
+}
+
+export interface ResetPasswordResult {
+  success: boolean;
+  error?: string;
+}
+
+export async function resetPassword(
+  token: string,
+  password: string,
+): Promise<ResetPasswordResult> {
+  if (!token) {
+    return delay({
+      success: false,
+      error: "Link de redefinição inválido ou expirado.",
+    });
+  }
+
+  if (password.length < 6) {
+    return delay({
+      success: false,
+      error: "A senha deve ter pelo menos 6 caracteres.",
+    });
+  }
+
+  return delay({ success: true });
+}
