@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions";
 import { NavButton } from "@/components/nav-button";
 import { Button } from "@/components/ui/button";
-import type { SessionUser } from "@/lib/session";
+import { useUser } from "@/components/user-provider";
 
-export function HeaderNav({ user }: { user: SessionUser | null }) {
+export function HeaderNav() {
   const pathname = usePathname();
+  const user = useUser();
 
   return (
     <nav className="flex items-center gap-1">
