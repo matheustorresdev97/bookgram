@@ -1,9 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { register } from "@/lib/api/auth";
+import { createSession } from "@/lib/session";
 
 export interface CreateAccountFormState {
   error?: string;
@@ -28,13 +28,7 @@ export async function createAccount(
     return { error: result.error ?? "Não foi possível criar a conta." };
   }
 
-  const cookieStore = await cookies();
-  cookieStore.set("token", `mock-token-${result.user.username}`, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24,
-  });
+  await createSession(result.user.username);
 
   redirect("/account");
 }

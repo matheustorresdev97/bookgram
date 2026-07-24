@@ -1,0 +1,41 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+import { logout } from "@/app/actions";
+import { NavButton } from "@/components/nav-button";
+import { Button } from "@/components/ui/button";
+import type { SessionUser } from "@/lib/session";
+
+export function HeaderNav({ user }: { user: SessionUser | null }) {
+  const pathname = usePathname();
+
+  return (
+    <nav className="flex items-center gap-1">
+      {user ? (
+        <>
+          <NavButton href="/account" active={pathname === "/account"}>
+            {user.username}
+          </NavButton>
+          <form action={logout}>
+            <Button type="submit" variant="ghost">
+              Sair
+            </Button>
+          </form>
+        </>
+      ) : (
+        <>
+          <NavButton href="/login" active={pathname === "/login"}>
+            Entrar
+          </NavButton>
+          <NavButton
+            href="/login/create"
+            active={pathname === "/login/create"}
+          >
+            Criar conta
+          </NavButton>
+        </>
+      )}
+    </nav>
+  );
+}

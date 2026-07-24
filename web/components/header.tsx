@@ -1,14 +1,11 @@
-"use client";
-
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
-import { NavButton } from "@/components/nav-button";
-import { currentUser } from "@/lib/session";
+import { HeaderNav } from "@/components/header-nav";
+import { getCurrentUser } from "@/lib/session";
 
-export function Header() {
-  const pathname = usePathname();
+export async function Header() {
+  const user = await getCurrentUser();
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background">
@@ -20,25 +17,7 @@ export function Header() {
           <BookOpen className="size-5 text-primary" />
           BookGram
         </Link>
-        <nav className="flex items-center gap-1">
-          {currentUser ? (
-            <NavButton href="/account" active={pathname === "/account"}>
-              Conta
-            </NavButton>
-          ) : (
-            <>
-              <NavButton href="/login" active={pathname === "/login"}>
-                Entrar
-              </NavButton>
-              <NavButton
-                href="/login/create"
-                active={pathname === "/login/create"}
-              >
-                Criar conta
-              </NavButton>
-            </>
-          )}
-        </nav>
+        <HeaderNav user={user} />
       </div>
     </header>
   );
