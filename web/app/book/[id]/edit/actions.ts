@@ -3,10 +3,11 @@
 import { redirect } from "next/navigation";
 
 import type { BookFormState } from "@/components/book-form";
-import { addBook } from "@/lib/api/books";
+import { getBookById, updateBook } from "@/lib/api/books";
 import { getCurrentUser } from "@/lib/session";
 
-export async function createBook(
+export async function updateBookAction(
+  bookId: number,
   _prevState: BookFormState,
   formData: FormData,
 ): Promise<BookFormState> {
@@ -14,6 +15,16 @@ export async function createBook(
 
   if (!user) {
     redirect("/login");
+  }
+
+  const book = await getBookById(bookId);
+
+  if (!book) {
+    return { error: "Livro não encontrado." };
+  }
+
+  if (book.postedBy !== user.username) {
+    return { error: "Você não tem permissão para editar este livro." };
   }
 
   const title = String(formData.get("title") ?? "").trim();
@@ -26,14 +37,7 @@ export async function createBook(
     return { error: "Preencha todos os campos." };
   }
 
-  const book = await addBook({
-    title,
-    author,
-    genre,
-    description,
-    coverUrl,
-    postedBy: user.username,
-  });
+  await updateBook(bookId, { title, author, genre, description, coverUrl });
 
-  redirect(`/book/${book.id}`);
+  redirect(`/book/${bookId}`);
 }

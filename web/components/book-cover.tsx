@@ -1,4 +1,4 @@
-import { Heart, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,9 +17,6 @@ export function BookCover({ book }: { book: Book }) {
             sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          {book.isFavorite && (
-            <Heart className="absolute top-2 right-2 size-5 fill-primary text-primary drop-shadow" />
-          )}
         </div>
         <CardContent className="flex flex-col gap-1 py-3">
           <p className="line-clamp-1 font-heading text-sm text-foreground">

@@ -68,3 +68,11 @@ export async function addComment(input: {
 
   return delay(comment);
 }
+
+export async function getCommentsCountByBookIds(
+  bookIds: number[],
+): Promise<number> {
+  return delay(
+    comments.filter((comment) => bookIds.includes(comment.bookId)).length,
+  );
+}

@@ -4,12 +4,13 @@ export interface Book {
   title: string;
   description: string;
   coverUrl: string;
+  genre: string;
   averageRating: number;
   totalReviews: number;
   publishedDate: string;
-  isFavorite: boolean;
+  postedBy?: string;
 }
 
 export interface Books {
-    books: Book[];
+  books: Book[];
 }
