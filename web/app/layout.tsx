@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +30,13 @@ export default function RootLayout({
       lang="pt-br"
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </div>
+      </body>
     </html>
   );
 }
