@@ -76,3 +76,31 @@ export async function getCommentsCountByBookIds(
     comments.filter((comment) => bookIds.includes(comment.bookId)).length,
   );
 }
+
+export async function getCommentById(
+  id: number,
+): Promise<BookComment | undefined> {
+  return delay(comments.find((comment) => comment.id === id));
+}
+
+export async function updateComment(
+  id: number,
+  input: { rating: number; text: string },
+): Promise<BookComment | undefined> {
+  const comment = comments.find((c) => c.id === id);
+
+  if (!comment) {
+    return delay(undefined);
+  }
+
+  Object.assign(comment, input);
+
+  return delay(comment);
+}
+
+export async function deleteComment(id: number): Promise<boolean> {
+  const lengthBefore = comments.length;
+  comments = comments.filter((comment) => comment.id !== id);
+
+  return delay(comments.length < lengthBefore);
+}

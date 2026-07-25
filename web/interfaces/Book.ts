@@ -10,7 +10,3 @@ export interface Book {
   publishedDate: string;
   postedBy?: string;
 }
-
-export interface Books {
-  books: Book[];
-}

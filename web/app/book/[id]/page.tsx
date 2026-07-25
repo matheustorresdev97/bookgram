@@ -3,7 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Avatar } from "@/components/avatar";
 import { CommentForm } from "@/components/comment-form";
+import { CommentItem } from "@/components/comment-item";
 import { DeleteBookButton } from "@/components/delete-book-button";
 import { LikeButton } from "@/components/like-button";
 import { StarRating } from "@/components/star-rating";
@@ -73,8 +75,13 @@ export default async function BookIdPage({
           </div>
           <p className="text-sm text-muted-foreground">
             Publicado em {formatDate(book.publishedDate)}
-            {book.postedBy ? ` · Postado por ${book.postedBy}` : null}
           </p>
+          {book.postedBy ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Avatar username={book.postedBy} size="sm" />
+              Postado por {book.postedBy}
+            </div>
+          ) : null}
           <p className="max-w-prose text-base">{book.description}</p>
           <div className="flex items-center gap-2">
             <LikeButton
@@ -110,21 +117,7 @@ export default async function BookIdPage({
         ) : (
           <div className="flex flex-col gap-4">
             {comments.map((comment) => (
-              <div
-                key={comment.id}
-                className="flex flex-col gap-1 rounded-lg border border-border p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{comment.username}</span>
-                  <StarRating value={comment.rating} />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {comment.text}
-                </p>
-                <span className="text-xs text-muted-foreground">
-                  {formatDate(comment.createdAt)}
-                </span>
-              </div>
+              <CommentItem key={comment.id} comment={comment} bookId={book.id} />
             ))}
           </div>
         )}

@@ -1,4 +1,4 @@
-import type { Book, Books } from "@/interfaces/Book";
+import type { Book } from "@/interfaces/Book";
 
 const MOCK_LATENCY_MS = 500;
 
@@ -135,12 +135,50 @@ let books: Book[] = [
 
 let nextId = books.length + 1;
 
+export interface GetBooksOptions {
+  query?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface GetBooksResult {
+  books: Book[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 /**
  * Mock do client da futura API (Java + Open Library): assíncrono e com
  * latência simulada, para consumir igual a uma chamada de rede real.
  */
-export async function getBooks(): Promise<Books> {
-  return delay({ books });
+export async function getBooks(
+  options: GetBooksOptions = {},
+): Promise<GetBooksResult> {
+  const { query = "", page = 1, pageSize = 10 } = options;
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const filtered = normalizedQuery
+    ? books.filter(
+        (book) =>
+          book.title.toLowerCase().includes(normalizedQuery) ||
+          book.author.toLowerCase().includes(normalizedQuery),
+      )
+    : books;
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const start = (currentPage - 1) * pageSize;
+
+  return delay({
+    books: filtered.slice(start, start + pageSize),
+    total,
+    page: currentPage,
+    pageSize,
+    totalPages,
+  });
 }
 
 export async function getBookById(id: number): Promise<Book | undefined> {
