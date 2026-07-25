@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bookgram-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-bookgram}
+      POSTGRES_USER: ${DB_USER:-bookgram}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bookgram}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - bookgram-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bookgram} -d ${DB_NAME:-bookgram}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./api
+    container_name: bookgram-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-bookgram}
+      DB_USER: ${DB_USER:-bookgram}
+      DB_PASSWORD: ${DB_PASSWORD:-bookgram}
+      SERVER_PORT: 8080
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+volumes:
+  bookgram-db-data:
