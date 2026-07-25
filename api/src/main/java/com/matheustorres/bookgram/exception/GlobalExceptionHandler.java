@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
 				.body(ApiError.of(HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(), ex.getMessage()));
 	}
 
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+				ApiError.of(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), ex.getMessage()));
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
 		Map<String, String> fieldErrors = new LinkedHashMap<>();

@@ -26,12 +26,14 @@ export function LostPasswordForm() {
           Se o e-mail informado estiver cadastrado, você receberá um link
           para redefinir sua senha em instantes.
         </p>
-        <Button
-          variant="outline"
-          render={<Link href="/login/reset?token=demo-token-123" />}
-        >
-          Simular link recebido por e-mail
-        </Button>
+        {state.token ? (
+          <Button
+            variant="outline"
+            render={<Link href={`/login/reset?token=${state.token}`} />}
+          >
+            Simular link recebido por e-mail
+          </Button>
+        ) : null}
       </div>
     );
   }

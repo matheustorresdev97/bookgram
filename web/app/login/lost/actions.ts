@@ -4,6 +4,7 @@ import { requestPasswordReset } from "@/lib/api/auth";
 
 export interface LostPasswordFormState {
   submitted: boolean;
+  token?: string;
 }
 
 export async function requestReset(
@@ -12,7 +13,7 @@ export async function requestReset(
 ): Promise<LostPasswordFormState> {
   const email = String(formData.get("email") ?? "");
 
-  await requestPasswordReset(email);
+  const result = await requestPasswordReset(email);
 
-  return { submitted: true };
+  return { submitted: true, token: result.token };
 }

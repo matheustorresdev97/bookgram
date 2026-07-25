@@ -1,84 +1,109 @@
-const MOCK_LATENCY_MS = 700;
+import { API_URL } from "@/lib/api/http";
 
-const MOCK_CREDENTIALS = {
-  username: "leitor",
-  password: "leitor123",
-};
+interface ApiErrorBody {
+  message?: string;
+  fieldErrors?: Record<string, string> | null;
+}
 
-const MOCK_EXISTING_EMAIL = "leitor@bookgram.com";
+async function postAuth<T>(
+  path: string,
+  body: unknown,
+): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-function delay<T>(value: T, ms = MOCK_LATENCY_MS): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
+  if (response.ok) {
+    const data =
+      response.status === 204 ? undefined : ((await response.json()) as T);
+    return { ok: true, data: data as T };
+  }
+
+  const apiError = (await response.json().catch(() => null)) as ApiErrorBody | null;
+  const fieldErrorValues = apiError?.fieldErrors
+    ? Object.values(apiError.fieldErrors)
+    : [];
+  const error =
+    fieldErrorValues[0] ?? apiError?.message ?? "Erro ao comunicar com a API.";
+
+  return { ok: false, error };
 }
 
 export interface LoginResult {
   success: boolean;
   user?: { username: string };
+  token?: string;
   error?: string;
 }
 
-/**
- * Mock do client da futura API de autenticação: assíncrono e com
- * latência simulada, para consumir igual a uma chamada de rede real.
- */
 export async function login(
   username: string,
   password: string,
 ): Promise<LoginResult> {
-  if (
-    username === MOCK_CREDENTIALS.username &&
-    password === MOCK_CREDENTIALS.password
-  ) {
-    return delay({ success: true, user: { username } });
+  const result = await postAuth<{ token: string; username: string }>(
+    "/api/auth/login",
+    { username, password },
+  );
+
+  if (!result.ok) {
+    return { success: false, error: result.error };
   }
 
-  return delay({ success: false, error: "Usuário ou senha inválidos." });
+  return {
+    success: true,
+    user: { username: result.data.username },
+    token: result.data.token,
+  };
 }
 
 export interface RegisterResult {
   success: boolean;
   user?: { username: string };
+  token?: string;
   error?: string;
 }
 
-/**
- * Mock do client da futura API de cadastro: assíncrono e com latência
- * simulada, para consumir igual a uma chamada de rede real.
- */
 export async function register(
   name: string,
   email: string,
   password: string,
 ): Promise<RegisterResult> {
-  if (email.toLowerCase() === MOCK_EXISTING_EMAIL) {
-    return delay({
-      success: false,
-      error: "Este e-mail já está cadastrado.",
-    });
+  const result = await postAuth<{ token: string; username: string }>(
+    "/api/auth/register",
+    { username: name, email, password },
+  );
+
+  if (!result.ok) {
+    return { success: false, error: result.error };
   }
 
-  if (password.length < 6) {
-    return delay({
-      success: false,
-      error: "A senha deve ter pelo menos 6 caracteres.",
-    });
-  }
-
-  return delay({ success: true, user: { username: name } });
+  return {
+    success: true,
+    user: { username: result.data.username },
+    token: result.data.token,
+  };
 }
 
 export interface RequestPasswordResetResult {
   success: boolean;
+  token?: string;
 }
 
-/**
- * Nunca revela se o e-mail existe na base, para evitar enumeração de contas.
- */
 export async function requestPasswordReset(
   email: string,
 ): Promise<RequestPasswordResetResult> {
-  void email;
-  return delay({ success: true });
+  const result = await postAuth<{ token: string | null }>(
+    "/api/auth/password-reset/request",
+    { email },
+  );
+
+  if (!result.ok) {
+    return { success: false };
+  }
+
+  return { success: true, token: result.data.token ?? undefined };
 }
 
 export interface ResetPasswordResult {
@@ -90,19 +115,14 @@ export async function resetPassword(
   token: string,
   password: string,
 ): Promise<ResetPasswordResult> {
-  if (!token) {
-    return delay({
-      success: false,
-      error: "Link de redefinição inválido ou expirado.",
-    });
+  const result = await postAuth<undefined>("/api/auth/password-reset/confirm", {
+    token,
+    newPassword: password,
+  });
+
+  if (!result.ok) {
+    return { success: false, error: result.error };
   }
 
-  if (password.length < 6) {
-    return delay({
-      success: false,
-      error: "A senha deve ter pelo menos 6 caracteres.",
-    });
-  }
-
-  return delay({ success: true });
+  return { success: true };
 }

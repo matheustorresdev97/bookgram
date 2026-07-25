@@ -18,11 +18,11 @@ export async function login(
 
   const result = await loginRequest(username, password);
 
-  if (!result.success || !result.user) {
+  if (!result.success || !result.token) {
     return { error: result.error ?? "Não foi possível entrar." };
   }
 
-  await createSession(result.user.username);
+  await createSession(result.token);
 
   redirect("/account");
 }

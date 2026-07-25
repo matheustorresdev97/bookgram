@@ -24,11 +24,11 @@ export async function createAccount(
 
   const result = await register(name, email, password);
 
-  if (!result.success || !result.user) {
+  if (!result.success || !result.token) {
     return { error: result.error ?? "Não foi possível criar a conta." };
   }
 
-  await createSession(result.user.username);
+  await createSession(result.token);
 
   redirect("/account");
 }
