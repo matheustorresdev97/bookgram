@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { GENRES } from "@/lib/genres";
+import type { Genre } from "@/interfaces/Genre";
 
 export interface BookFormState {
   error?: string;
@@ -32,6 +32,7 @@ export function BookForm({
   defaultValues,
   submitLabel,
   pendingLabel,
+  genres,
 }: {
   action: (
     state: BookFormState,
@@ -40,6 +41,7 @@ export function BookForm({
   defaultValues?: BookFormDefaultValues;
   submitLabel: string;
   pendingLabel: string;
+  genres: Genre[];
 }) {
   const [state, formAction, pending] = useActionState(action, {});
 
@@ -69,15 +71,15 @@ export function BookForm({
           name="genre"
           required
           defaultValue={defaultValues?.genre}
-          items={GENRES.map((genre) => ({ value: genre, label: genre }))}
+          items={genres.map((genre) => ({ value: genre.name, label: genre.name }))}
         >
           <SelectTrigger id="genre" className="w-full">
             <SelectValue placeholder="Selecione um gênero" />
           </SelectTrigger>
           <SelectContent>
-            {GENRES.map((genre) => (
-              <SelectItem key={genre} value={genre}>
-                {genre}
+            {genres.map((genre) => (
+              <SelectItem key={genre.id} value={genre.name}>
+                {genre.name}
               </SelectItem>
             ))}
           </SelectContent>
