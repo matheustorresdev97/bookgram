@@ -14,15 +14,20 @@ export async function getCommentsByBookId(
   return handleResponse<BookComment[]>(response);
 }
 
-export async function addComment(input: {
-  bookId: number;
-  username: string;
-  rating: number;
-  text: string;
-}): Promise<BookComment> {
+export async function addComment(
+  input: {
+    bookId: number;
+    rating: number;
+    text: string;
+  },
+  token: string | null,
+): Promise<BookComment> {
   const response = await fetch(`${API_URL}/api/comments`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(input),
   });
 
@@ -54,19 +59,27 @@ export async function getCommentById(
 export async function updateComment(
   id: number,
   input: { rating: number; text: string },
+  token: string | null,
 ): Promise<BookComment | undefined> {
   const response = await fetch(`${API_URL}/api/comments/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(input),
   });
 
   return handleResponseOrUndefined<BookComment>(response);
 }
 
-export async function deleteComment(id: number): Promise<boolean> {
+export async function deleteComment(
+  id: number,
+  token: string | null,
+): Promise<boolean> {
   const response = await fetch(`${API_URL}/api/comments/${id}`, {
     method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   return handleDeleteResponse(response);

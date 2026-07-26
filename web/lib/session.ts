@@ -26,6 +26,16 @@ export async function destroySession() {
 }
 
 /**
+ * Retorna o JWT bruto da sessão, para ser repassado como `Authorization: Bearer`
+ * em chamadas ao backend que exigem prova de identidade (ex.: editar/excluir
+ * recursos do próprio usuário).
+ */
+export async function getSessionToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(TOKEN_COOKIE)?.value ?? null;
+}
+
+/**
  * Verifica a assinatura do JWT localmente (sem round-trip para a API) usando o
  * mesmo segredo (JWT_SECRET) com que o backend assinou o token no login/registro.
  */

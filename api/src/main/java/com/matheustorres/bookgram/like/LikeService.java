@@ -41,9 +41,8 @@ public class LikeService {
 		return likeRepository.countByBook_IdIn(bookIds);
 	}
 
-	public ToggleLikeResponse toggle(LikeToggleRequest request) {
+	public ToggleLikeResponse toggle(LikeToggleRequest request, String username) {
 		Long bookId = request.bookId();
-		String username = request.username().trim();
 
 		Optional<Like> existing = likeRepository.findByBook_IdAndUsername(bookId, username);
 		boolean liked;

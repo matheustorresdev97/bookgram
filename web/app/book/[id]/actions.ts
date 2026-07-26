@@ -10,8 +10,8 @@ import {
   getCommentById,
   updateComment,
 } from "@/lib/api/comments";
-import { toggleLike as toggleLikeMock } from "@/lib/api/likes";
-import { getCurrentUser } from "@/lib/session";
+import { toggleLike as toggleLikeApi } from "@/lib/api/likes";
+import { getCurrentUser, getSessionToken } from "@/lib/session";
 
 export async function toggleLike(bookId: number) {
   const user = await getCurrentUser();
@@ -20,7 +20,8 @@ export async function toggleLike(bookId: number) {
     redirect("/login");
   }
 
-  await toggleLikeMock(bookId, user.username);
+  const token = await getSessionToken();
+  await toggleLikeApi(bookId, token);
   revalidatePath(`/book/${bookId}`);
 }
 
@@ -50,7 +51,8 @@ export async function addBookComment(
     return { error: "Escreva um comentário." };
   }
 
-  await addComment({ bookId, username: user.username, rating, text });
+  const token = await getSessionToken();
+  await addComment({ bookId, rating, text }, token);
   revalidatePath(`/book/${bookId}`);
 
   return {};
@@ -69,7 +71,8 @@ export async function deleteBookAction(bookId: number) {
     redirect(`/book/${bookId}`);
   }
 
-  await deleteBook(bookId);
+  const token = await getSessionToken();
+  await deleteBook(bookId, token);
   redirect("/account");
 }
 
@@ -109,7 +112,8 @@ export async function updateCommentAction(
     return { error: "Escreva um comentário." };
   }
 
-  await updateComment(commentId, { rating, text });
+  const token = await getSessionToken();
+  await updateComment(commentId, { rating, text }, token);
   revalidatePath(`/book/${bookId}`);
 
   return {};
@@ -128,6 +132,7 @@ export async function deleteCommentAction(commentId: number, bookId: number) {
     redirect(`/book/${bookId}`);
   }
 
-  await deleteComment(commentId);
+  const token = await getSessionToken();
+  await deleteComment(commentId, token);
   revalidatePath(`/book/${bookId}`);
 }

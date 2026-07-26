@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import type { BookFormState } from "@/components/book-form";
 import { getBookById, updateBook } from "@/lib/api/books";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, getSessionToken } from "@/lib/session";
 
 export async function updateBookAction(
   bookId: number,
@@ -37,7 +37,8 @@ export async function updateBookAction(
     return { error: "Preencha todos os campos." };
   }
 
-  await updateBook(bookId, { title, author, genre, description, coverUrl });
+  const token = await getSessionToken();
+  await updateBook(bookId, { title, author, genre, description, coverUrl }, token);
 
   redirect(`/book/${bookId}`);
 }

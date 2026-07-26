@@ -2,6 +2,7 @@ package com.matheustorres.bookgram.book;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.matheustorres.bookgram.exception.ForbiddenException;
 import com.matheustorres.bookgram.exception.ResourceNotFoundException;
 import com.matheustorres.bookgram.genre.Genre;
 import com.matheustorres.bookgram.genre.GenreRepository;
@@ -53,9 +55,8 @@ public class BookService {
 		return bookRepository.findByPostedBy(postedBy, Sort.by("id")).stream().map(BookResponse::from).toList();
 	}
 
-	public BookResponse create(BookCreateRequest request) {
+	public BookResponse create(BookCreateRequest request, String postedBy) {
 		Genre genre = getGenreByNameOrThrow(request.genre());
-		String postedBy = request.postedBy() == null || request.postedBy().isBlank() ? null : request.postedBy();
 
 		Book book = new Book(request.title().trim(), request.author().trim(), request.description().trim(),
 				request.coverUrl().trim(), genre, 0.0, 0, LocalDate.now(), postedBy);
@@ -63,8 +64,9 @@ public class BookService {
 		return BookResponse.from(bookRepository.save(book));
 	}
 
-	public BookResponse update(Long id, BookUpdateRequest request) {
+	public BookResponse update(Long id, BookUpdateRequest request, String requesterUsername) {
 		Book book = getBookOrThrow(id);
+		assertOwner(book, requesterUsername);
 		Genre genre = getGenreByNameOrThrow(request.genre());
 
 		book.setTitle(request.title().trim());
@@ -76,14 +78,21 @@ public class BookService {
 		return BookResponse.from(book);
 	}
 
-	public void delete(Long id) {
+	public void delete(Long id, String requesterUsername) {
 		Book book = getBookOrThrow(id);
+		assertOwner(book, requesterUsername);
 		bookRepository.delete(book);
 	}
 
 	private Book getBookOrThrow(Long id) {
 		return bookRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Livro com id %d não encontrado".formatted(id)));
+	}
+
+	private void assertOwner(Book book, String requesterUsername) {
+		if (!Objects.equals(book.getPostedBy(), requesterUsername)) {
+			throw new ForbiddenException("Você não tem permissão para modificar este livro.");
+		}
 	}
 
 	private Genre getGenreByNameOrThrow(String name) {

@@ -4,9 +4,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.matheustorres.bookgram.user.JwtService;
 
 import jakarta.validation.Valid;
 
@@ -17,9 +20,11 @@ import java.util.List;
 public class LikeController {
 
 	private final LikeService likeService;
+	private final JwtService jwtService;
 
-	public LikeController(LikeService likeService) {
+	public LikeController(LikeService likeService, JwtService jwtService) {
 		this.likeService = likeService;
+		this.jwtService = jwtService;
 	}
 
 	@GetMapping("/has-liked")
@@ -38,7 +43,9 @@ public class LikeController {
 	}
 
 	@PostMapping("/toggle")
-	public ToggleLikeResponse toggle(@Valid @RequestBody LikeToggleRequest request) {
-		return likeService.toggle(request);
+	public ToggleLikeResponse toggle(@Valid @RequestBody LikeToggleRequest request,
+			@RequestHeader(value = "Authorization", required = false) String authorization) {
+		String username = jwtService.extractUsernameFromHeader(authorization);
+		return likeService.toggle(request, username);
 	}
 }

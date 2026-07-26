@@ -2,12 +2,14 @@ package com.matheustorres.bookgram.comment;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.matheustorres.bookgram.book.Book;
 import com.matheustorres.bookgram.book.BookRepository;
+import com.matheustorres.bookgram.exception.ForbiddenException;
 import com.matheustorres.bookgram.exception.ResourceNotFoundException;
 
 @Service
@@ -42,17 +44,17 @@ public class CommentService {
 		return commentRepository.countByBook_IdIn(bookIds);
 	}
 
-	public CommentResponse create(CommentCreateRequest request) {
+	public CommentResponse create(CommentCreateRequest request, String username) {
 		Book book = getBookOrThrow(request.bookId());
 
-		Comment comment = new Comment(book, request.username().trim(), request.rating(), request.text().trim(),
-				Instant.now());
+		Comment comment = new Comment(book, username, request.rating(), request.text().trim(), Instant.now());
 
 		return CommentResponse.from(commentRepository.save(comment));
 	}
 
-	public CommentResponse update(Long id, CommentUpdateRequest request) {
+	public CommentResponse update(Long id, CommentUpdateRequest request, String requesterUsername) {
 		Comment comment = getCommentOrThrow(id);
+		assertOwner(comment, requesterUsername);
 
 		comment.setRating(request.rating());
 		comment.setText(request.text().trim());
@@ -60,8 +62,9 @@ public class CommentService {
 		return CommentResponse.from(comment);
 	}
 
-	public void delete(Long id) {
+	public void delete(Long id, String requesterUsername) {
 		Comment comment = getCommentOrThrow(id);
+		assertOwner(comment, requesterUsername);
 		commentRepository.delete(comment);
 	}
 
@@ -73,5 +76,11 @@ public class CommentService {
 	private Book getBookOrThrow(Long id) {
 		return bookRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Livro com id %d não encontrado".formatted(id)));
+	}
+
+	private void assertOwner(Comment comment, String requesterUsername) {
+		if (!Objects.equals(comment.getUsername(), requesterUsername)) {
+			throw new ForbiddenException("Você não tem permissão para modificar este comentário.");
+		}
 	}
 }

@@ -32,12 +32,15 @@ export async function getLikesCountByBookIds(
 
 export async function toggleLike(
   bookId: number,
-  username: string,
+  token: string | null,
 ): Promise<{ liked: boolean; likesCount: number }> {
   const response = await fetch(`${API_URL}/api/likes/toggle`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bookId, username }),
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ bookId }),
   });
 
   return handleResponse<{ liked: boolean; likesCount: number }>(response);

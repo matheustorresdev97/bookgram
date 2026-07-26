@@ -12,7 +12,5 @@ public record BookCreateRequest(
 
 		@NotBlank(message = "URL da capa é obrigatória") @Size(max = 500, message = "URL da capa deve ter no máximo 500 caracteres") String coverUrl,
 
-		@NotBlank(message = "Gênero é obrigatório") @Size(max = 100, message = "Gênero deve ter no máximo 100 caracteres") String genre,
-
-		String postedBy) {
+		@NotBlank(message = "Gênero é obrigatório") @Size(max = 100, message = "Gênero deve ter no máximo 100 caracteres") String genre) {
 }

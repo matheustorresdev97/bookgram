@@ -55,13 +55,18 @@ export interface AddBookInput {
   description: string;
   coverUrl: string;
   genre: string;
-  postedBy: string;
 }
 
-export async function addBook(input: AddBookInput): Promise<Book> {
+export async function addBook(
+  input: AddBookInput,
+  token: string | null,
+): Promise<Book> {
   const response = await fetch(`${API_URL}/api/books`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(input),
   });
 
@@ -79,19 +84,27 @@ export interface UpdateBookInput {
 export async function updateBook(
   id: number,
   input: UpdateBookInput,
+  token: string | null,
 ): Promise<Book | undefined> {
   const response = await fetch(`${API_URL}/api/books/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(input),
   });
 
   return handleResponseOrUndefined<Book>(response);
 }
 
-export async function deleteBook(id: number): Promise<boolean> {
+export async function deleteBook(
+  id: number,
+  token: string | null,
+): Promise<boolean> {
   const response = await fetch(`${API_URL}/api/books/${id}`, {
     method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   return handleDeleteResponse(response);
