@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import type { BookFormState } from "@/components/book-form";
 import { getBookById, updateBook } from "@/lib/api/books";
+import { parseBookFormFields } from "@/lib/forms/parse-book-form";
 import { getCurrentUser, getSessionToken } from "@/lib/session";
 
 export async function updateBookAction(
@@ -27,18 +28,14 @@ export async function updateBookAction(
     return { error: "Você não tem permissão para editar este livro." };
   }
 
-  const title = String(formData.get("title") ?? "").trim();
-  const author = String(formData.get("author") ?? "").trim();
-  const genre = String(formData.get("genre") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const coverUrl = String(formData.get("coverUrl") ?? "").trim();
+  const parsed = parseBookFormFields(formData);
 
-  if (!title || !author || !genre || !description || !coverUrl) {
-    return { error: "Preencha todos os campos." };
+  if (!parsed.success) {
+    return { error: parsed.error };
   }
 
   const token = await getSessionToken();
-  await updateBook(bookId, { title, author, genre, description, coverUrl }, token);
+  await updateBook(bookId, parsed.data, token);
 
   redirect(`/book/${bookId}`);
 }

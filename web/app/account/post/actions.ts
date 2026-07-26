@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import type { BookFormState } from "@/components/book-form";
 import { addBook } from "@/lib/api/books";
+import { parseBookFormFields } from "@/lib/forms/parse-book-form";
 import { getCurrentUser, getSessionToken } from "@/lib/session";
 
 export async function createBook(
@@ -16,18 +17,14 @@ export async function createBook(
     redirect("/login");
   }
 
-  const title = String(formData.get("title") ?? "").trim();
-  const author = String(formData.get("author") ?? "").trim();
-  const genre = String(formData.get("genre") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const coverUrl = String(formData.get("coverUrl") ?? "").trim();
+  const parsed = parseBookFormFields(formData);
 
-  if (!title || !author || !genre || !description || !coverUrl) {
-    return { error: "Preencha todos os campos." };
+  if (!parsed.success) {
+    return { error: parsed.error };
   }
 
   const token = await getSessionToken();
-  const book = await addBook({ title, author, genre, description, coverUrl }, token);
+  const book = await addBook(parsed.data, token);
 
   redirect(`/book/${book.id}`);
 }
