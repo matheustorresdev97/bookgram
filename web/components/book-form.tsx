@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -46,76 +47,101 @@ export function BookForm({
   const [state, formAction, pending] = useActionState(action, {});
 
   return (
-    <form action={formAction} className="flex max-w-md flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="title">Título</Label>
-        <Input
-          id="title"
-          name="title"
-          defaultValue={defaultValues?.title}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="author">Autor</Label>
-        <Input
-          id="author"
-          name="author"
-          defaultValue={defaultValues?.author}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="genre">Gênero</Label>
-        <Select
-          name="genre"
-          required
-          defaultValue={defaultValues?.genre}
-          items={genres.map((genre) => ({ value: genre.name, label: genre.name }))}
-        >
-          <SelectTrigger id="genre" className="w-full">
-            <SelectValue placeholder="Selecione um gênero" />
-          </SelectTrigger>
-          <SelectContent>
-            {genres.map((genre) => (
-              <SelectItem key={genre.id} value={genre.name}>
-                {genre.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="coverUrl">URL da capa</Label>
-        <Input
-          id="coverUrl"
-          name="coverUrl"
-          type="url"
-          placeholder="https://..."
-          defaultValue={defaultValues?.coverUrl}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="description">Descrição</Label>
-        <Textarea
-          id="description"
-          name="description"
-          rows={4}
-          defaultValue={defaultValues?.description}
-          required
-        />
-      </div>
+    <Card className="max-w-2xl">
+      <CardContent>
+        <form action={formAction} className="flex flex-col gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="title">Título</Label>
+              <Input
+                id="title"
+                name="title"
+                placeholder="Ex.: Dom Casmurro"
+                defaultValue={defaultValues?.title}
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="author">Autor</Label>
+              <Input
+                id="author"
+                name="author"
+                placeholder="Ex.: Machado de Assis"
+                defaultValue={defaultValues?.author}
+                required
+              />
+            </div>
+          </div>
 
-      {state?.error ? (
-        <p className="text-sm text-destructive" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="genre">Gênero</Label>
+              <Select
+                name="genre"
+                required
+                defaultValue={defaultValues?.genre}
+                items={genres.map((genre) => ({
+                  value: genre.name,
+                  label: genre.name,
+                }))}
+              >
+                <SelectTrigger id="genre" className="w-full">
+                  <SelectValue placeholder="Selecione um gênero" />
+                </SelectTrigger>
+                <SelectContent>
+                  {genres.map((genre) => (
+                    <SelectItem key={genre.id} value={genre.name}>
+                      {genre.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="coverUrl">URL da capa</Label>
+              <Input
+                id="coverUrl"
+                name="coverUrl"
+                type="url"
+                placeholder="https://..."
+                defaultValue={defaultValues?.coverUrl}
+                required
+              />
+            </div>
+          </div>
 
-      <Button type="submit" className="mt-2" disabled={pending}>
-        {pending ? pendingLabel : submitLabel}
-      </Button>
-    </form>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="description">Descrição</Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Do que se trata o livro?"
+              rows={5}
+              defaultValue={defaultValues?.description}
+              required
+            />
+          </div>
+
+          {state?.error ? (
+            <p
+              className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              role="alert"
+            >
+              {state.error}
+            </p>
+          ) : null}
+
+          <div className="flex justify-end border-t border-border pt-4">
+            <Button
+              type="submit"
+              className="w-full sm:w-auto"
+              disabled={pending}
+            >
+              {pending ? pendingLabel : submitLabel}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
